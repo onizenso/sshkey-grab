@@ -108,40 +108,58 @@ class sshkeyparse:
             print ("Error: This is not a DSA SSH key file")
             sys.exit(2)
 
-    def create_rsa(self, output):
-        """Create RSA SSH key file"""
-        if self.mem[0:7] == "ssh-rsa":
-
-            # FIXME: This needs to be cleaned up.
+    # Used to help clean-up create_rsa
+    # Is there a more pythony way to do this?
+    # Would function pointers in assoc array help?
+    def rsa_helper(self, case):
+        if case == 1:
             start = 10
             size = self.unpack_bigint(self.mem[start:(start+2)])
+        elif case == 2:
             start += 2
             n = self.unpack_bigint(self.mem[start:(start+size)])
-            start = start + size + 2
+        elif case == 3:
+            start += size + 2
             size = self.unpack_bigint(self.mem[start:(start+2)])
+        elif case == 4:
             start += 2
             e = self.unpack_bigint(self.mem[start:(start+size)])
-            start = start + size + 2
+        elif case == 5:
+            start += size + 2
             size = self.unpack_bigint(self.mem[start:(start+2)])
+        elif case == 6:
             start += 2
             d = self.unpack_bigint(self.mem[start:(start+size)])
-            start = start + size + 2
+        elif case == 7:
+            start += size + 2
             size = self.unpack_bigint(self.mem[start:(start+2)])
+        elif case == 8:
             start += 2
             c = self.unpack_bigint(self.mem[start:(start+size)])
-            start = start + size + 2
+        elif case == 9:
+            start += size + 2
             size = self.unpack_bigint(self.mem[start:(start+2)])
+        elif case == 10:
             start += 2
             p = self.unpack_bigint(self.mem[start:(start+size)])
-            start = start + size + 2
+        elif case == 11:
+            start += size + 2
             size = self.unpack_bigint(self.mem[start:(start+2)])
+        elif case == 12:
             start += 2
             q = self.unpack_bigint(self.mem[start:(start+size)])
-
             e1 = d % (p - 1)
             e2 = d % (q - 1)
 
             self.mem = self.mem[start+size:]
+        else:
+            print "Invalid case"
+
+    def create_rsa(self, output):
+        """Create RSA SSH key file"""
+        if self.mem[0:7] == "ssh-rsa":
+            for x in range(1, 12):
+                rsa_helper(x)
 
         else:
             print ("Error: This is not a RSA SSH key file")
